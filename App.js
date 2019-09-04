@@ -9,12 +9,12 @@ import { createAppContainer } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 
 // Import Screens
-import HomeScreen from './components/home-screen/HomeScreen';
+import StartScreen from './components/start-screen/StartScreen';
+import ChatScreen from './components/chat-screen/ChatScreen';
 
 const AppNavigator = createStackNavigator({
-  Home: {
-    screen: HomeScreen,
-  },
+  Start: StartScreen,
+  Chat: ChatScreen,
 });
 
 const AppContainer = createAppContainer(AppNavigator);
