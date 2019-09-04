@@ -1,5 +1,5 @@
 import React from 'react';
-import { TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import Text from '../custom-text/CustomText';
 
 setButtonColor = (color) => {
@@ -19,18 +19,19 @@ const Button = (props) => {
     const { title = 'Enter', style = {}, textStyle = {}, onPress } = props;
 
     return (
-        <TouchableOpacity onPress={onPress} style={[styles.button, style]}>
-            <Text type="bold" style={[styles.text, textStyle]}>{props.title}</Text>
-        </TouchableOpacity>
+      <TouchableOpacity onPress={onPress} style={[styles.button, style]}>
+          <Text type="bold" style={[styles.text, textStyle]}>{props.title}</Text>
+      </TouchableOpacity>
     );
 };
 
 const ColorButton = (props) => {
-    const { color, onPress } = props;
-      const buttonColor = this.setButtonColor(color ? color : 'default');
+    const { color, onPress, selected } = props;
+    const buttonColor = this.setButtonColor(color ? color : 'default');
     return (
-        <TouchableOpacity onPress={onPress} style={[{backgroundColor: buttonColor}, styles.colorButton]}>
-        </TouchableOpacity>
+      <View style={[styles.colorButtonContainer, selected ? {borderColor: '#757083'} : null]}>
+        <TouchableOpacity onPress={onPress} style={[{backgroundColor: buttonColor}, styles.colorButton]} />
+      </View>
     );
 };
 
@@ -43,18 +44,26 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       backgroundColor: '#757083',
   },
-  
+  colorButtonContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 5,
+    borderStyle: 'solid',
+    borderWidth: 3,
+    marginRight: 15,
+    borderRadius: 100,
+    borderColor: '#fff',
+  },
   colorButton: {
-      height: 50,
-      width: 50,
-      borderRadius: 50,
-      marginRight: 20,
+    height: 50,
+    width: 50,
+    borderRadius: 50 / 2,
   },
 
   text: {
-      fontSize: 16,
-      textTransform: 'uppercase',
-      color: '#FFFFFF',
+    fontSize: 16,
+    textTransform: 'uppercase',
+    color: '#FFFFFF',
   },
 });
 
