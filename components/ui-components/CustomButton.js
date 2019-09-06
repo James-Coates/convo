@@ -1,19 +1,6 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
-import Text from '../custom-text/CustomText';
-
-setButtonColor = (color) => {
-  switch(color) {
-    case 'lilac':
-      return '#474056';
-    case 'blue':
-      return '#8A95A5';
-    case 'green':
-      return '#B9C6AE';
-    default:
-      return '#090C08';
-  }
-}
+import Text from './CustomText';
 
 const Button = (props) => {
     const { title = 'Enter', style = {}, textStyle = {}, onPress } = props;
@@ -27,10 +14,9 @@ const Button = (props) => {
 
 const ColorButton = (props) => {
     const { color, onPress, selected } = props;
-    const buttonColor = this.setButtonColor(color ? color : 'default');
     return (
       <View style={[styles.colorButtonContainer, selected ? {borderColor: '#757083'} : null]}>
-        <TouchableOpacity onPress={onPress} style={[{backgroundColor: buttonColor}, styles.colorButton]} />
+        <TouchableOpacity onPress={onPress} style={[{backgroundColor: color}, styles.colorButton]} />
       </View>
     );
 };

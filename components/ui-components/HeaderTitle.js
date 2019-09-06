@@ -1,12 +1,12 @@
 import React from 'react';
 import { StyleSheet, View, ImageBackground, TextInput, Alert } from 'react-native';
-import Text from '../custom-text/CustomText';
+import Text from './CustomText';
 
 function HeaderTitle(props) {
-  const { test } = props;
+  const { title } = props;
   return (
     <View style={styles.navHeader}>
-      <Text style={styles.navText} type='bold'>{ test ? test : 'USER' }</Text>
+      <Text style={styles.navText} type='bold'>{ title }</Text>
     </View>
   );
 } 
