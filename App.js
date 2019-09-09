@@ -29,8 +29,8 @@ export default class App extends Component {
     }
   }
 
-  // wait for font then set fontLoaded true
   async componentDidMount() {
+    // wait for font then set fontLoaded true
     await Font.loadAsync({
       'Poppins300': require('./assets/fonts/Poppins-Light.ttf'),
       'Poppins600': require('./assets/fonts/Poppins-SemiBold.ttf'),

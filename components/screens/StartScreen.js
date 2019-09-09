@@ -1,5 +1,10 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, TextInput, KeyboardAvoidingView, StyleSheet } from 'react-native';
+import { View, ImageBackground, TextInput, KeyboardAvoidingView, StyleSheet, ActivityIndicator } from 'react-native';
+
+import firebaseConfig from '../utils/firebaseConfig';
+
+const firebase = require('firebase');
+require('firebase/firestore');
 
 // Import custom components
 import Text from '../ui-components/CustomText';
@@ -8,10 +13,13 @@ import HeaderTitle from '../ui-components/HeaderTitle';
 
 class HomeScreen extends Component {
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
+    // initialise app with firebase
+    firebase.initializeApp(firebaseConfig);
     this.state = {
       name: '',
+      uid: 0,
       colorName: '',
       colorHex: '',
       colors: [
@@ -34,6 +42,21 @@ class HomeScreen extends Component {
       ]
     };
   };
+
+  componentDidMount() {
+     // authenticate users anon using firebase
+     this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+      if (!user) {
+        await firebase.auth().signInAnonymously()
+          .catch((err) => console.log(err));
+      }
+      // update user in state with active user
+      this.setState({
+        uid: user.uid,
+      });
+      console.log(this.state.uid)
+    });
+  }
 
   // Set navigation options
   static navigationOptions = ({navigation}) => {
@@ -61,46 +84,59 @@ class HomeScreen extends Component {
   // Open chat screen
   handleStartChat = () => {
     this.props.navigation.navigate('Chat', { 
-      name: this.state.name, 
+      name: this.state.name ? this.state.name : 'User', // default to user #temp fix
       color: this.state.colorHex,
+      uid: this.state.uid,
     });
   };
+
+  componentWillUnmount() {
+    this.authUnsubscribe();
+  }
 
   render() {
     return (
       <ImageBackground source={require('../../assets/home.png')} style={styles.wrapper}>
-        <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0} style={styles.container}>
-          <View style={styles.title}>
-            <Text type='bold' size='title' style={styles.titleText}>CONVO</Text>
+        { !this.state.uid ? (
+          <View style={{flex: 1, justifyContent: 'center'}}>
+            <ActivityIndicator 
+              size='large'
+            />
           </View>
-          <View style={styles.form}>
-            <View style={styles.inputContainer}>
-              <TextInput
-                value={this.state.name} 
-                placeholder='Your Name'
-                onChangeText={(text) => this.handleInputChange(text)}
-                style={styles.textInput}
-              />
+        ) : (
+          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0} style={styles.container}>
+            <View style={styles.title}>
+              <Text type='bold' size='title' style={styles.titleText}>convo</Text>
             </View>
-            <View style={styles.backgroundSelector}>
-              <Text style={styles.backgroundText}>Choose Background Color:</Text>
-              <View style={styles.colorButtonBox}>
-                {/* create color button for each color in colors */}
-                {this.state.colors.map(color => (
-                  <ColorButton 
-                    color={color.hex}
-                    onPress={() => this.handleColorButtonPress(color)}
-                    selected={this.state.colorName === color.name}
-                    key={color.name}
-                  />
-                ))}
+            <View style={styles.form}>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  value={this.state.name} 
+                  placeholder='Your Name'
+                  onChangeText={(text) => this.handleInputChange(text)}
+                  style={styles.textInput}
+                />
+              </View>
+              <View style={styles.backgroundSelector}>
+                <Text style={styles.backgroundText}>Choose Background Color:</Text>
+                <View style={styles.colorButtonBox}>
+                  {/* create color button for each color in colors */}
+                  {this.state.colors.map(color => (
+                    <ColorButton 
+                      color={color.hex}
+                      onPress={() => this.handleColorButtonPress(color)}
+                      selected={this.state.colorName === color.name}
+                      key={color.name}
+                    />
+                  ))}
+                </View>
+              </View>
+              <View stylee={styles.buttonContainer}>
+                <Button onPress={this.handleStartChat} title='Start Chatting'/>
               </View>
             </View>
-            <View stylee={styles.buttonContainer}>
-              <Button onPress={this.handleStartChat} title='Start Chatting'/>
-            </View>
-          </View>
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        ) }
       </ImageBackground>
     );
   }
@@ -126,6 +162,7 @@ const styles = StyleSheet.create({
   },
   titleText: {
     color: 'white',
+    textTransform: 'uppercase',
   },
   form: {
     width: '100%',
