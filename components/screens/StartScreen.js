@@ -1,17 +1,37 @@
 import React, { Component } from 'react';
-import { View, ImageBackground, TextInput, KeyboardAvoidingView, StyleSheet, ActivityIndicator } from 'react-native';
-
+import {
+  View,
+  ImageBackground,
+  TextInput,
+  KeyboardAvoidingView,
+  StyleSheet,
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import PropTypes from 'prop-types';
 import firebaseConfig from '../utils/firebaseConfig';
 
-const firebase = require('firebase');
-require('firebase/firestore');
-
-// Import custom components
+// import custom components
 import Text from '../ui-components/CustomText';
 import { Button, ColorButton } from '../ui-components/CustomButton';
 import HeaderTitle from '../ui-components/HeaderTitle';
 
-class HomeScreen extends Component {
+// Firebase
+const firebase = require('firebase');
+require('firebase/firestore');
+
+// Background image
+const homeBackground = require('../../assets/home.png');
+
+export default class StartScreen extends Component {
+  // Set navigation options
+  static navigationOptions = ({ navigation }) => {
+    // Set title to nav param title
+    const title = navigation.getParam('title', 'user');
+    return {
+      headerTitle: <HeaderTitle title={title} />,
+    };
+  };
 
   constructor(props) {
     super(props);
@@ -23,59 +43,57 @@ class HomeScreen extends Component {
       colorName: '',
       colorHex: '',
       colors: [
-        { 
+        {
           name: 'black',
-          hex : '#090C08',
+          hex: '#090C08',
         },
-        { 
+        {
           name: 'lilac',
-          hex : '#474056',
+          hex: '#474056',
         },
-        { 
+        {
           name: 'blue',
-          hex : '#8A95A5',
+          hex: '#8A95A5',
         },
-        { 
+        {
           name: 'green',
-          hex : '#B9C6AE',
+          hex: '#B9C6AE',
         },
-      ]
+      ],
     };
-  };
+  }
 
   componentDidMount() {
-     // authenticate users anon using firebase
-     this.authUnsubscribe = firebase.auth().onAuthStateChanged(async (user) => {
+    // authenticate users anon using firebase
+    this.authUnsubscribe = firebase.auth().onAuthStateChanged(async user => {
       if (!user) {
-        await firebase.auth().signInAnonymously()
-          .catch((err) => console.log(err));
+        await firebase
+          .auth()
+          .signInAnonymously()
+          .catch(err => Alert.alert(err));
       }
       // update user in state with active user
       this.setState({
         uid: user.uid,
       });
-      console.log(this.state.uid)
     });
   }
 
-  // Set navigation options
-  static navigationOptions = ({navigation}) => {
-    // Set title to nav param title
-    const title = navigation.getParam('title', 'user');
-    return {
-      headerTitle: (<HeaderTitle title={ title } />),
-    };
-  };
+  componentWillUnmount() {
+    this.authUnsubscribe();
+  }
 
   // Set user name from input to state and link to title param in nav
-  handleInputChange = async (text) => {
+  handleInputChange = async text => {
+    const { navigation } = this.props;
     await this.setState({ name: text });
-    this.props.navigation.setParams({ title: this.state.name });
+    const { name } = this.state;
+    navigation.setParams({ title: name });
   };
 
   // Set background color choice to state
-  handleColorButtonPress = (color) => {
-    this.setState({ 
+  handleColorButtonPress = color => {
+    this.setState({
       colorName: color.name,
       colorHex: color.hex,
     });
@@ -83,60 +101,65 @@ class HomeScreen extends Component {
 
   // Open chat screen
   handleStartChat = () => {
-    this.props.navigation.navigate('Chat', { 
-      name: this.state.name ? this.state.name : 'User', // default to user #temp fix
-      color: this.state.colorHex,
-      uid: this.state.uid,
+    const { navigation } = this.props;
+    const { name, colorHex, uid } = this.state;
+    navigation.navigate('Chat', {
+      name: name || 'User', // default to user #temp fix
+      color: colorHex,
+      uid,
     });
   };
 
-  componentWillUnmount() {
-    this.authUnsubscribe();
-  }
-
   render() {
+    const { name, colors, colorName, uid } = this.state;
     return (
-      <ImageBackground source={require('../../assets/home.png')} style={styles.wrapper}>
-        { !this.state.uid ? (
-          <View style={{flex: 1, justifyContent: 'center'}}>
-            <ActivityIndicator 
-              size='large'
-            />
+      <ImageBackground source={homeBackground} style={styles.wrapper}>
+        {!uid ? (
+          <View style={{ flex: 1, justifyContent: 'center' }}>
+            <ActivityIndicator size="large" />
           </View>
         ) : (
-          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={0} style={styles.container}>
+          <KeyboardAvoidingView
+            behavior="padding"
+            keyboardVerticalOffset={0}
+            style={styles.container}
+          >
             <View style={styles.title}>
-              <Text type='bold' size='title' style={styles.titleText}>convo</Text>
+              <Text type="bold" size="title" style={styles.titleText}>
+                convo
+              </Text>
             </View>
             <View style={styles.form}>
               <View style={styles.inputContainer}>
                 <TextInput
-                  value={this.state.name} 
-                  placeholder='Your Name'
-                  onChangeText={(text) => this.handleInputChange(text)}
+                  value={name}
+                  placeholder="Your Name"
+                  onChangeText={text => this.handleInputChange(text)}
                   style={styles.textInput}
                 />
               </View>
               <View style={styles.backgroundSelector}>
-                <Text style={styles.backgroundText}>Choose Background Color:</Text>
+                <Text style={styles.backgroundText}>
+                  Choose Background Color:
+                </Text>
                 <View style={styles.colorButtonBox}>
                   {/* create color button for each color in colors */}
-                  {this.state.colors.map(color => (
-                    <ColorButton 
+                  {colors.map(color => (
+                    <ColorButton
                       color={color.hex}
                       onPress={() => this.handleColorButtonPress(color)}
-                      selected={this.state.colorName === color.name}
+                      selected={colorName === color.name}
                       key={color.name}
                     />
                   ))}
                 </View>
               </View>
               <View stylee={styles.buttonContainer}>
-                <Button onPress={this.handleStartChat} title='Start Chatting'/>
+                <Button onPress={this.handleStartChat} title="Start Chatting" />
               </View>
             </View>
           </KeyboardAvoidingView>
-        ) }
+        )}
       </ImageBackground>
     );
   }
@@ -187,14 +210,16 @@ const styles = StyleSheet.create({
   backgroundText: {
     paddingBottom: 5,
   },
-  backgroundSelector: {
-  },
   colorButtonBox: {
     display: 'flex',
     flexDirection: 'row',
   },
-  buttonContainer: {
-  }
 });
 
-export default HomeScreen;
+StartScreen.propTypes = {
+  navigation: PropTypes.shape({
+    navigate: PropTypes.func.isRequired,
+    getParam: PropTypes.func.isRequired,
+    setParams: PropTypes.func.isRequired,
+  }).isRequired,
+};

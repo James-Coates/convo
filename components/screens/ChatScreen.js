@@ -2,31 +2,40 @@ import React, { Component } from 'react';
 import { View, Platform, KeyboardAvoidingView } from 'react-native';
 import { Header } from 'react-navigation-stack';
 import { GiftedChat, Bubble } from 'react-native-gifted-chat';
-import QueryString from 'qs';
+import PropTypes from 'prop-types';
 
 const firebase = require('firebase');
 require('firebase/firestore');
 
-class ChatScreen extends Component {
-
+export default class ChatScreen extends Component {
   constructor(props) {
     super(props);
     this.referenceMessages = firebase.firestore().collection('messages');
     this.state = {
-      messages: []
-    }
-  };
+      messages: [],
+    };
+  }
 
   // Set init message
   componentDidMount() {
+    const { navigation } = this.props;
     // get messages from db
-    this.unsubscribe = this.referenceMessages.onSnapshot(this.onCollectionUpdate);
-    this.addMessage(`${this.props.navigation.getParam('name')} has entered the chat`, true);
-  };
+    this.unsubscribe = this.referenceMessages.onSnapshot(
+      this.onCollectionUpdate,
+    );
+    this.addMessage(
+      `${navigation.getParam('name')} has entered the chat`,
+      true,
+    );
+  }
 
-  onCollectionUpdate = (querySnapshot) => {
+  componentWillUnmount() {
+    this.unsubscribe();
+  }
+
+  onCollectionUpdate = querySnapshot => {
     const messages = [];
-    querySnapshot.forEach((doc) => {
+    querySnapshot.forEach(doc => {
       const data = doc.data();
       messages.push({
         _id: doc.id,
@@ -36,84 +45,98 @@ class ChatScreen extends Component {
         system: data.system,
       });
     });
-    const sortedMessages = messages.sort(function (a, b) {
+    const sortedMessages = messages.sort((a, b) => {
       const dateA = a.createdAt;
       const dateB = b.createdAt;
-      return  dateB - dateA;
+      return dateB - dateA;
     });
     this.setState({
       messages: sortedMessages,
     });
-    console.log(this.state.messages);
-  }
+  };
 
   addMessage = (message, system = false) => {
+    const { navigation } = this.props;
     if (system) {
       this.referenceMessages.add({
         text: message,
         createdAt: new Date(),
-        system
-      })
+        system,
+      });
     } else {
-    this.referenceMessages.add({
-      text: message.text,
-      createdAt: new Date(),
-      user: {
-        _id: this.props.navigation.getParam('uid'),
-        name: this.props.navigation.getParam('name')
-      }
-    })}
-  }
+      this.referenceMessages.add({
+        text: message.text,
+        createdAt: new Date(),
+        user: {
+          _id: navigation.getParam('uid'),
+          name: navigation.getParam('name'),
+        },
+      });
+    }
+  };
 
   // append sent messages to state
   onSend = async (messages = []) => {
+    const { stateMessages } = this.state;
     await this.setState(previousState => ({
-      messages: GiftedChat.append(previousState.messages, messages)
+      messages: GiftedChat.append(previousState.messages, messages),
     }));
-    this.addMessage(this.state.messages[0]);
+    this.addMessage(stateMessages[0]);
   };
 
   // customise bubble color
-  renderBubble = (props) => {
+  renderBubble = props => {
     return (
       <Bubble
         {...props}
         wrapperStyle={{
           right: {
-            backgroundColor: '#757083'
+            backgroundColor: '#757083',
           },
         }}
       />
     );
   };
 
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
-
   render() {
     const { navigation } = this.props;
+    const { messages } = this.state;
     const uid = navigation.getParam('uid');
     return (
-      <View style={{flex: 1, backgroundColor: navigation.getParam('color')}}>
-        { Platform.OS === 'android' ? (
-          <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={Header.HEIGHT + 22} style={{flex: 1}}>
+      <View
+        style={{
+          flex: 1,
+          backgroundColor: navigation.getParam('color'),
+        }}
+      >
+        {Platform.OS === 'android' ? (
+          <KeyboardAvoidingView
+            behavior="padding"
+            keyboardVerticalOffset={Header.HEIGHT + 22}
+            style={{ flex: 1 }}
+          >
             <GiftedChat
+              messages={messages}
               renderBubble={this.renderBubble}
-              messages={this.state.messages}
-              onSend={messages => this.onSend(messages)}
+              onSend={updatedMessages => this.onSend(updatedMessages)}
               user={{ _id: uid }}
             />
-          </KeyboardAvoidingView> ) : (
+          </KeyboardAvoidingView>
+        ) : (
           <GiftedChat
-            messages={this.state.messages}
-            onSend={messages => this.onSend(messages)}
+            messages={messages}
+            renderBubble={this.renderBubble}
+            onSend={updatedMessages => this.onSend(updatedMessages)}
             user={{ _id: uid }}
-          />)
-        }
+          />
+        )}
       </View>
     );
-  };
-};
+  }
+}
 
-export default ChatScreen;
+ChatScreen.propTypes = {
+  navigation: PropTypes.shape({
+    getParam: PropTypes.func,
+  }).isRequired,
+};
