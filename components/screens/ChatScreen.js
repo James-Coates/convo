@@ -77,11 +77,10 @@ export default class ChatScreen extends Component {
 
   // append sent messages to state
   onSend = async (messages = []) => {
-    const { stateMessages } = this.state;
     await this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, messages),
     }));
-    this.addMessage(stateMessages[0]);
+    this.addMessage(messages[0]);
   };
 
   // customise bubble color
