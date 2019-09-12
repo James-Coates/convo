@@ -1,8 +1,16 @@
+/* eslint-disable no-console */
 import React, { Component } from 'react';
-import { View, Platform, KeyboardAvoidingView } from 'react-native';
+import {
+  View,
+  Platform,
+  KeyboardAvoidingView,
+  AsyncStorage,
+} from 'react-native';
+import NetInfo from '@react-native-community/netinfo';
 import { Header } from 'react-navigation-stack';
-import { GiftedChat, Bubble } from 'react-native-gifted-chat';
+import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
 import PropTypes from 'prop-types';
+import '../utils/fixtimerbug';
 
 const firebase = require('firebase');
 require('firebase/firestore');
@@ -13,24 +21,35 @@ export default class ChatScreen extends Component {
     this.referenceMessages = firebase.firestore().collection('messages');
     this.state = {
       messages: [],
+      online: '',
     };
   }
 
   // Set init message
   componentDidMount() {
     const { navigation } = this.props;
-    // get messages from db
-    this.unsubscribe = this.referenceMessages.onSnapshot(
-      this.onCollectionUpdate,
-    );
-    this.addMessage(
-      `${navigation.getParam('name')} has entered the chat`,
-      true,
-    );
+    const user = navigation.getParam('name');
+
+    NetInfo.isConnected.fetch().then(isConnected => {
+      if (isConnected) {
+        console.log('online');
+        this.setState({ online: true });
+        // get messages from db
+        this.unsubscribe = this.referenceMessages.onSnapshot(
+          this.onCollectionUpdate,
+        );
+        this.addMessage(`${user} has entered the chat`, true);
+      } else {
+        console.log('offline');
+        this.setState({ online: false });
+        this.getLocalMessages();
+      }
+    });
   }
 
   componentWillUnmount() {
-    this.unsubscribe();
+    const { online } = this.state;
+    if (online) this.unsubscribe();
   }
 
   onCollectionUpdate = querySnapshot => {
@@ -55,6 +74,39 @@ export default class ChatScreen extends Component {
     });
   };
 
+  // retrieve locally stored messages
+  getLocalMessages = async () => {
+    let messages = [];
+    try {
+      messages = (await AsyncStorage.getItem('messages')) || [];
+      this.setState({
+        messages: JSON.parse(messages),
+      });
+    } catch (err) {
+      console.log('error in get local messages');
+    }
+  };
+
+  // store messages locally
+  storeMessages = async messages => {
+    try {
+      console.log('store messages reached');
+      await AsyncStorage.setItem('messages', JSON.stringify(messages));
+    } catch (err) {
+      console.log('error in get local messages');
+    }
+  };
+
+  // delete local messages
+  deleteMessages = async () => {
+    try {
+      await AsyncStorage.removeItem('messages');
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  // add message to db
   addMessage = (message, system = false) => {
     const { navigation } = this.props;
     if (system) {
@@ -76,11 +128,14 @@ export default class ChatScreen extends Component {
   };
 
   // append sent messages to state
-  onSend = async (messages = []) => {
+  onSend = async (message = []) => {
     await this.setState(previousState => ({
-      messages: GiftedChat.append(previousState.messages, messages),
+      messages: GiftedChat.append(previousState.messages, message),
     }));
-    this.addMessage(messages[0]);
+    console.log(message);
+    this.addMessage(message[0]);
+    const { messages } = this.state;
+    this.storeMessages(messages);
   };
 
   // customise bubble color
@@ -95,6 +150,14 @@ export default class ChatScreen extends Component {
         }}
       />
     );
+  };
+
+  // diable input when offline
+  renderInputToolbar = props => {
+    const { online } = this.state;
+    console.log(online);
+    if (online === false) return null;
+    return <InputToolbar {...props} />;
   };
 
   render() {
@@ -117,6 +180,7 @@ export default class ChatScreen extends Component {
             <GiftedChat
               messages={messages}
               renderBubble={this.renderBubble}
+              renderInputToolbar={this.renderInputToolbar}
               onSend={updatedMessages => this.onSend(updatedMessages)}
               user={{ _id: uid }}
             />
@@ -125,6 +189,7 @@ export default class ChatScreen extends Component {
           <GiftedChat
             messages={messages}
             renderBubble={this.renderBubble}
+            renderInputToolbar={this.renderInputToolbar}
             onSend={updatedMessages => this.onSend(updatedMessages)}
             user={{ _id: uid }}
           />
