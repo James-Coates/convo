@@ -11,7 +11,7 @@ import { Header } from 'react-navigation-stack';
 import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
 import PropTypes from 'prop-types';
 import '../utils/fixtimerbug';
-import { ActionsButton } from '../ui-components/CustomButton';
+import CustomActions from '../ui-components/CustomActions';
 
 const firebase = require('firebase');
 require('firebase/firestore');
@@ -161,8 +161,8 @@ export default class ChatScreen extends Component {
     return <InputToolbar {...props} />;
   };
 
-  renderActionsButton = props => {
-    return <ActionsButton {...props} />;
+  renderCustomActions = props => {
+    return <CustomActions {...props} />;
   };
 
   render() {
@@ -186,7 +186,7 @@ export default class ChatScreen extends Component {
               messages={messages}
               renderBubble={this.renderBubble}
               renderInputToolbar={this.renderInputToolbar}
-              renderActions={this.renderActionsButton}
+              renderActions={this.renderCustomActions}
               onSend={updatedMessages => this.onSend(updatedMessages)}
               user={{ _id: uid }}
             />
@@ -196,7 +196,7 @@ export default class ChatScreen extends Component {
             messages={messages}
             renderBubble={this.renderBubble}
             renderInputToolbar={this.renderInputToolbar}
-            renderActions={this.renderActionsButton}
+            renderActions={this.renderCustomActions}
             onSend={updatedMessages => this.onSend(updatedMessages)}
             user={{ _id: uid }}
           />

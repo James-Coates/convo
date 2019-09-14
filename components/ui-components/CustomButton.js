@@ -29,18 +29,6 @@ const ColorButton = ({ color, onPress, selected }) => {
   );
 };
 
-const ActionsButton = ({onPress}) => {
-  return (
-    <TouchableOpacity onPress={onPress} style={[styles.actionButtonContainer]}>
-      <View style={styles.actionButtonWrapper}>
-        <Text type="bold" style={styles.actionButtonIcon}>
-          +
-        </Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
-
 const styles = StyleSheet.create({
   button: {
     display: 'flex',
@@ -65,26 +53,6 @@ const styles = StyleSheet.create({
     width: 50,
     borderRadius: 50 / 2,
   },
-  actionButtonContainer: {
-    width: 26,
-    height: 26,
-    marginLeft: 10,
-    marginBottom: 10,
-  },
-  actionButtonWrapper: {
-    borderRadius: 13,
-    borderColor: '#b2b2b2',
-    borderWidth: 2,
-    flex: 1,
-  },
-  actionButtonIcon: {
-    color: '#b2b2b2',
-    fontSize: 24,
-    backgroundColor: 'transparent',
-    textAlign: 'center',
-    marginTop: -5,
-    paddingLeft: 1,
-  },
   text: {
     fontSize: 16,
     textTransform: 'uppercase',
@@ -106,4 +74,4 @@ ColorButton.propTypes = {
   selected: PropTypes.bool.isRequired,
 };
 
-export { Button, ColorButton, ActionsButton };
+export { Button, ColorButton };
