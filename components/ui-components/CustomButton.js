@@ -3,9 +3,7 @@ import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
 import Text from './CustomText';
 
-const Button = props => {
-  const { title = 'Enter', onPress } = props;
-
+const Button = ({ title = 'Enter', onPress }) => {
   return (
     <TouchableOpacity onPress={onPress} style={[styles.button]}>
       <Text type="bold" style={styles.text}>
@@ -15,8 +13,7 @@ const Button = props => {
   );
 };
 
-const ColorButton = props => {
-  const { color, onPress, selected } = props;
+const ColorButton = ({ color, onPress, selected }) => {
   return (
     <View
       style={[
@@ -29,6 +26,18 @@ const ColorButton = props => {
         style={[{ backgroundColor: color }, styles.colorButton]}
       />
     </View>
+  );
+};
+
+const ActionsButton = ({onPress}) => {
+  return (
+    <TouchableOpacity onPress={onPress} style={[styles.actionButtonContainer]}>
+      <View style={styles.actionButtonWrapper}>
+        <Text type="bold" style={styles.actionButtonIcon}>
+          +
+        </Text>
+      </View>
+    </TouchableOpacity>
   );
 };
 
@@ -56,15 +65,33 @@ const styles = StyleSheet.create({
     width: 50,
     borderRadius: 50 / 2,
   },
-
+  actionButtonContainer: {
+    width: 26,
+    height: 26,
+    marginLeft: 10,
+    marginBottom: 10,
+  },
+  actionButtonWrapper: {
+    borderRadius: 13,
+    borderColor: '#b2b2b2',
+    borderWidth: 2,
+    flex: 1,
+  },
+  actionButtonIcon: {
+    color: '#b2b2b2',
+    fontSize: 24,
+    backgroundColor: 'transparent',
+    textAlign: 'center',
+    marginTop: -5,
+    paddingLeft: 1,
+  },
   text: {
     fontSize: 16,
     textTransform: 'uppercase',
     color: '#FFFFFF',
+    backgroundColor: '#757083',
   },
 });
-
-export { Button, ColorButton };
 
 Button.propTypes = {
   title: PropTypes.string,
@@ -78,3 +105,5 @@ ColorButton.propTypes = {
   onPress: PropTypes.func.isRequired,
   selected: PropTypes.bool.isRequired,
 };
+
+export { Button, ColorButton, ActionsButton };

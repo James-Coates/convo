@@ -11,6 +11,7 @@ import { Header } from 'react-navigation-stack';
 import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
 import PropTypes from 'prop-types';
 import '../utils/fixtimerbug';
+import { ActionsButton } from '../ui-components/CustomButton';
 
 const firebase = require('firebase');
 require('firebase/firestore');
@@ -152,12 +153,16 @@ export default class ChatScreen extends Component {
     );
   };
 
-  // diable input when offline
+  // disable input when offline
   renderInputToolbar = props => {
     const { online } = this.state;
     console.log(online);
     if (online === false) return null;
     return <InputToolbar {...props} />;
+  };
+
+  renderActionsButton = props => {
+    return <ActionsButton {...props} />;
   };
 
   render() {
@@ -181,6 +186,7 @@ export default class ChatScreen extends Component {
               messages={messages}
               renderBubble={this.renderBubble}
               renderInputToolbar={this.renderInputToolbar}
+              renderActions={this.renderActionsButton}
               onSend={updatedMessages => this.onSend(updatedMessages)}
               user={{ _id: uid }}
             />
@@ -190,6 +196,7 @@ export default class ChatScreen extends Component {
             messages={messages}
             renderBubble={this.renderBubble}
             renderInputToolbar={this.renderInputToolbar}
+            renderActions={this.renderActionsButton}
             onSend={updatedMessages => this.onSend(updatedMessages)}
             user={{ _id: uid }}
           />
