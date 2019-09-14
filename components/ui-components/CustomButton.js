@@ -1,34 +1,45 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import PropTypes from 'prop-types';
 import Text from './CustomText';
 
-const Button = (props) => {
-    const { title = 'Enter', style = {}, textStyle = {}, onPress } = props;
+const Button = props => {
+  const { title = 'Enter', onPress } = props;
 
-    return (
-      <TouchableOpacity onPress={onPress} style={[styles.button, style]}>
-          <Text type="bold" style={[styles.text, textStyle]}>{props.title}</Text>
-      </TouchableOpacity>
-    );
+  return (
+    <TouchableOpacity onPress={onPress} style={[styles.button]}>
+      <Text type="bold" style={styles.text}>
+        {title}
+      </Text>
+    </TouchableOpacity>
+  );
 };
 
-const ColorButton = (props) => {
-    const { color, onPress, selected } = props;
-    return (
-      <View style={[styles.colorButtonContainer, selected ? {borderColor: '#757083'} : null]}>
-        <TouchableOpacity onPress={onPress} style={[{backgroundColor: color}, styles.colorButton]} />
-      </View>
-    );
+const ColorButton = props => {
+  const { color, onPress, selected } = props;
+  return (
+    <View
+      style={[
+        styles.colorButtonContainer,
+        selected ? { borderColor: '#757083' } : null,
+      ]}
+    >
+      <TouchableOpacity
+        onPress={onPress}
+        style={[{ backgroundColor: color }, styles.colorButton]}
+      />
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
   button: {
-      display: 'flex',
-      height: 50,
-      borderRadius: 5,
-      justifyContent: 'center',
-      alignItems: 'center',
-      backgroundColor: '#757083',
+    display: 'flex',
+    height: 50,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#757083',
   },
   colorButtonContainer: {
     justifyContent: 'center',
@@ -53,4 +64,17 @@ const styles = StyleSheet.create({
   },
 });
 
-export { Button, ColorButton }; 
+export { Button, ColorButton };
+
+Button.propTypes = {
+  title: PropTypes.string,
+  onPress: PropTypes.func.isRequired,
+};
+Button.defaultProps = {
+  title: 'Enter',
+};
+ColorButton.propTypes = {
+  color: PropTypes.string.isRequired,
+  onPress: PropTypes.func.isRequired,
+  selected: PropTypes.bool.isRequired,
+};
