@@ -1,9 +1,14 @@
+/* eslint-disable no-console */
 import React, { Component } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import PropTypes from 'prop-types';
 import Text from './CustomText';
 
 class CustomActions extends Component {
+  // constructor(props) {
+  //   super(props);
+  // };
+
   onActionPress = () => {
     const options = [
       'Choose From Library',
@@ -12,7 +17,9 @@ class CustomActions extends Component {
       'Cancel',
     ];
     const cancelButtonIndex = options.length - 1;
-    this.context.actionSheet().showActionSheetWithOptions(
+    const { actionSheet } = this.context;
+    const { pickImage, takePhoto, sendLocation } = this.props;
+    actionSheet().showActionSheetWithOptions(
       {
         options,
         cancelButtonIndex,
@@ -20,13 +27,13 @@ class CustomActions extends Component {
       async buttonIndex => {
         switch (buttonIndex) {
           case 0:
-            console.log('pick an image');
+            pickImage();
             return;
           case 1:
-            console.log('take photo');
+            takePhoto();
             return;
           case 2:
-            console.log('send location');
+            sendLocation();
             break;
           default:
         }
@@ -36,7 +43,14 @@ class CustomActions extends Component {
 
   render() {
     return (
-      <TouchableOpacity onPress={this.onActionPress} style={[styles.container]}>
+      <TouchableOpacity
+        onPress={this.onActionPress}
+        style={[styles.container]}
+        accessible
+        accessibilityLabel="More Options"
+        accessibilityHint="Let’s you choose to send an image or your geolocation."
+        accessibilityRole="button"
+      >
         <View style={styles.wrapper}>
           <Text type="bold" style={styles.icon}>
             +
