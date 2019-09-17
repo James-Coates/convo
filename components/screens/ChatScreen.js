@@ -128,45 +128,57 @@ export default class ChatScreen extends Component {
   };
 
   pickImage = async () => {
-    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-    if (status === 'granted') {
-      const image = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: 'Images',
-      }).catch(err => console.log(err));
-      if (!image.cancelled) {
-        this.getImageURL(image.uri)
-          .then(imageURL => this.storeMessage({ image: imageURL }))
-          .catch(err => console.log(err));
+    try {
+      const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+      if (status === 'granted') {
+        const image = await ImagePicker.launchImageLibraryAsync({
+          mediaTypes: 'Images',
+        }).catch(err => console.log(err));
+        if (!image.cancelled) {
+          this.getImageURL(image.uri)
+            .then(imageURL => this.storeMessage({ image: imageURL }))
+            .catch(err => console.log(err));
+        }
       }
+    } catch (err) {
+      console.log(err);
     }
   };
 
   takePhoto = async () => {
-    const { status } = await Permissions.askAsync(
-      Permissions.CAMERA_ROLL,
-      Permissions.CAMERA,
-    );
-    if (status === 'granted') {
-      const image = await ImagePicker.launchCameraAsync({
-        mediaTypes: 'Images',
-      }).catch(err => console.log(err));
-      if (!image.cancelled) {
-        this.getImageURL(image.uri)
-          .then(imageURL => this.storeMessage({ image: imageURL }))
-          .catch(err => console.log(err));
+    try {
+      const { status } = await Permissions.askAsync(
+        Permissions.CAMERA_ROLL,
+        Permissions.CAMERA,
+      );
+      if (status === 'granted') {
+        const image = await ImagePicker.launchCameraAsync({
+          mediaTypes: 'Images',
+        }).catch(err => console.log(err));
+        if (!image.cancelled) {
+          this.getImageURL(image.uri)
+            .then(imageURL => this.storeMessage({ image: imageURL }))
+            .catch(err => console.log(err));
+        }
       }
+    } catch (err) {
+      console.log(err);
     }
   };
 
   sendLocation = async () => {
-    const { status } = await Permissions.askAsync(Permissions.LOCATION);
-    if (status === 'granted') {
-      const location = await Location.getCurrentPositionAsync({}).catch(err =>
-        console.log(err),
-      );
-      if (!location.cancelled) {
-        this.storeMessage({ location: location.coords });
+    try {
+      const { status } = await Permissions.askAsync(Permissions.LOCATION);
+      if (status === 'granted') {
+        const location = await Location.getCurrentPositionAsync({}).catch(err =>
+          console.log(err),
+        );
+        if (!location.cancelled) {
+          this.storeMessage({ location: location.coords });
+        }
       }
+    } catch (err) {
+      console.log(err);
     }
   };
 
