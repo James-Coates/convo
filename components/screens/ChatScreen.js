@@ -36,7 +36,6 @@ export default class ChatScreen extends Component {
   componentDidMount() {
     const { navigation } = this.props;
     const user = navigation.getParam('name');
-
     NetInfo.isConnected.fetch().then(isConnected => {
       if (isConnected) {
         this.setState({ online: true });
@@ -44,7 +43,7 @@ export default class ChatScreen extends Component {
         this.unsubscribe = this.referenceMessages.onSnapshot(
           this.onCollectionUpdate,
         );
-        this.addMessage(`${user} has entered the chat`, true);
+        this.storeMessage({ text: `${user} has entered the chat` }, true);
       } else {
         this.setState({ online: false });
         this.getLocalMessages();
@@ -72,9 +71,7 @@ export default class ChatScreen extends Component {
       });
     });
     const sortedMessages = messages.sort((a, b) => {
-      const dateA = a.createdAt;
-      const dateB = b.createdAt;
-      return dateB - dateA;
+      return b.createdAt - a.createdAt;
     });
     this.setState({
       messages: sortedMessages,
@@ -95,69 +92,28 @@ export default class ChatScreen extends Component {
   };
 
   // store messages locally
-  storeMessages = async messages => {
+  saveLocalMessages = async messages => {
     try {
-      console.log('store messages reached');
       await AsyncStorage.setItem('messages', JSON.stringify(messages));
     } catch (err) {
       console.log('error in get local messages');
     }
   };
 
-  // delete local messages
-  deleteMessages = async () => {
-    try {
-      await AsyncStorage.removeItem('messages');
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  // add message to db
-  addMessage = (message, system = false) => {
-    const { navigation } = this.props;
-    if (system) {
-      this.referenceMessages.add({
-        text: message,
-        createdAt: new Date(),
-        system,
-      });
-    } else {
-      this.referenceMessages.add({
-        text: message.text,
-        createdAt: new Date(),
-        user: {
-          _id: navigation.getParam('uid'),
-          name: navigation.getParam('name'),
-        }
-      });
-    }
-  };
-
-  addImage = image => {
+  // add message to db - message object, system check
+  storeMessage = (message, system = false) => {
+    const { text, image, location } = message;
     const { navigation } = this.props;
     this.referenceMessages.add({
+      text: text || null,
       createdAt: new Date(),
       user: {
         _id: navigation.getParam('uid'),
         name: navigation.getParam('name'),
       },
-      image,
-    });
-  };
-
-  addLocation = location => {
-    const { navigation } = this.props;
-    this.referenceMessages.add({
-      createdAt: new Date(),
-      user: {
-        _id: navigation.getParam('uid'),
-        name: navigation.getParam('name'),
-      },
-      location: {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-      }
+      system,
+      image: image || null,
+      location: location || null,
     });
   };
 
@@ -166,23 +122,9 @@ export default class ChatScreen extends Component {
     await this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, message),
     }));
-    this.addMessage(message[0]);
+    this.storeMessage({ text: message[0].text });
     const { messages } = this.state;
-    this.storeMessages(messages);
-  };
-
-  // customise bubble color
-  renderBubble = props => {
-    return (
-      <Bubble
-        {...props}
-        wrapperStyle={{
-          right: {
-            backgroundColor: '#757083',
-          },
-        }}
-      />
-    );
+    this.saveLocalMessages(messages);
   };
 
   pickImage = async () => {
@@ -192,9 +134,9 @@ export default class ChatScreen extends Component {
         mediaTypes: 'Images',
       }).catch(err => console.log(err));
       if (!image.cancelled) {
-        const blob = await this.createBlob(image.uri);
-        const imageURL = await this.storeImage(blob);
-        this.addImage(imageURL);
+        this.getImageURL(image.uri)
+          .then(imageURL => this.storeMessage({ image: imageURL }))
+          .catch(err => console.log(err));
       }
     }
   };
@@ -209,9 +151,9 @@ export default class ChatScreen extends Component {
         mediaTypes: 'Images',
       }).catch(err => console.log(err));
       if (!image.cancelled) {
-        const blob = await this.createBlob(image.uri);
-        const imageURL = await this.storeImage(blob);
-        this.addImage(imageURL);
+        this.getImageURL(image.uri)
+          .then(imageURL => this.storeMessage({ image: imageURL }))
+          .catch(err => console.log(err));
       }
     }
   };
@@ -223,9 +165,14 @@ export default class ChatScreen extends Component {
         console.log(err),
       );
       if (!location.cancelled) {
-        this.addLocation(location);
+        this.storeMessage({ location: location.coords });
       }
     }
+  };
+
+  getImageURL = async imageUri => {
+    const blob = await this.createBlob(imageUri);
+    return this.storeImage(blob);
   };
 
   createBlob = async uri => {
@@ -250,10 +197,7 @@ export default class ChatScreen extends Component {
     const imageId = `${navigation.getParam('name')}-${moment().format(
       'MMM-DD-hh-mm',
     )}`;
-    const ref = firebase
-      .storage()
-      .ref()
-      .child(imageId);
+    const ref = this.imageStore.ref().child(imageId);
     await ref.put(blob);
     blob.close();
     const imageUrl = await this.imageStore.ref(imageId).getDownloadURL();
@@ -274,6 +218,20 @@ export default class ChatScreen extends Component {
         pickImage={this.pickImage}
         takePhoto={this.takePhoto}
         sendLocation={this.sendLocation}
+      />
+    );
+  };
+
+  // customise bubble color
+  renderBubble = props => {
+    return (
+      <Bubble
+        {...props}
+        wrapperStyle={{
+          right: {
+            backgroundColor: '#757083',
+          },
+        }}
       />
     );
   };
@@ -299,7 +257,7 @@ export default class ChatScreen extends Component {
       );
     }
     return null;
-  }
+  };
 
   render() {
     const { navigation } = this.props;
