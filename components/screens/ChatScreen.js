@@ -188,32 +188,40 @@ export default class ChatScreen extends Component {
   };
 
   createBlob = async uri => {
-    const blob = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = () => {
-        resolve(xhr.response);
-      };
-      xhr.onerror = e => {
-        console.log(e);
-        reject(new TypeError('Network request failed'));
-      };
-      xhr.responseType = 'blob';
-      xhr.open('GET', uri, true);
-      xhr.send(null);
-    });
-    return blob;
+    try {
+      const blob = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = () => {
+          resolve(xhr.response);
+        };
+        xhr.onerror = e => {
+          console.log(e);
+          reject(new TypeError('Network request failed'));
+        };
+        xhr.responseType = 'blob';
+        xhr.open('GET', uri, true);
+        xhr.send(null);
+      });
+      return blob;
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   storeImage = async blob => {
-    const { navigation } = this.props;
-    const imageId = `${navigation.getParam('name')}-${moment().format(
-      'MMM-DD-hh-mm',
-    )}`;
-    const ref = this.imageStore.ref().child(imageId);
-    await ref.put(blob);
-    blob.close();
-    const imageUrl = await this.imageStore.ref(imageId).getDownloadURL();
-    return imageUrl;
+    try {
+      const { navigation } = this.props;
+      const imageId = `${navigation.getParam('name')}-${moment().format(
+        'MMM-DD-hh-mm',
+      )}`;
+      const ref = this.imageStore.ref().child(imageId);
+      await ref.put(blob);
+      blob.close();
+      const imageUrl = await this.imageStore.ref(imageId).getDownloadURL();
+      return imageUrl;
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   // disable input when offline
