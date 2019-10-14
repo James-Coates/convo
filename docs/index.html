@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Home</h1>
+
+    
+
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h1>CONVO</h1>
+<p>A Chat application built using the Expo toolset offering simple chat facilities on both iOS and andorid.</p>
+<h2>Getting Started</h2>
+<h3>Set Up Expo and Your Development Environment</h3>
+<p>To set up Expo and your development environment, you'll need <a href="https://nodejs.org/en/">Node</a> installed. You will also need to install the <a href="https://expo.io/">Expo</a> Command Line Interface (CLI). To install this globally use the following command in your terminal:</p>
+<pre class="prettyprint source lang-bash"><code>npm install expo-cli --global
+</code></pre>
+<p>Now, you need an Expo account. Head over to the Expo sign-up page and follow the instructions to create an account. Once that’s done, you should be able to log in to Expo from your browser as well as the mobile app.</p>
+<p>This is how the Expo app will look on your phone right after installation:</p>
+<p><img src="https://images.careerfoundry.com/public/courses/fullstack-immersion/A5/E2/expo%20projects%20ui.png" alt="expo start screen"></p>
+<h3>Setting up simulator</h3>
+<p>iOS Simulator
+To set up the iOS simulator, you need XCode on your Mac. It's available to download from the App Store</p>
+<p>After installing XCode, open it up and head over to “Preferences.” From there, click “Components” and install a simulator from the list. Open the simulator, start your Expo project, and click “Run on iOS simulator.”</p>
+<p>Android Emulator
+To set up Android Emulator, you first need to download and install Android Studio. To do this, follow the on-screen installation instructions and make sure you don’t untick the “Android Virtual Device” option in the installation dialog.</p>
+<p>After the installation is complete, start Android Studio, click “Configure,” and go to Settings -&gt; Appearance &amp; Behaviour -&gt; System Settings -&gt; Android SDK. Click the “SDK Tools” tab and check that you have “Android SDK Build-Tools” installed. Below is a screenshot of how this screen should look. If your “Android SDK Build-Tools” aren’t installed, click on the “Android SDK Build-Tools” row, then download the latest version by clicking on the download symbol that appears next to it:</p>
+<p>macOS and Linux only: You need to add the location of the Android SDK to your PATH. To do so, copy the path (in the picture above, it’s the path next to “Android SDK Location”) and add the following to your “~/.bashprofile” or “~/.bashrc” file:</p>
+<pre class="prettyprint source lang-bash"><code>export ANDROID_SDK=/Users/myuser/Library/Android/sdk
+</code></pre>
+<p>Make sure to edit the path in the line above because it will look different for you.</p>
+<p>macOS only: You also need to add platform-tools to your “~/.bashprofile” or “~/.bashrc” file. To do this, add:</p>
+<pre class="prettyprint source lang-bash"><code>export PATH=/Users/myuser/Library/Android/sdk/platform-tools:$PATH
+</code></pre>
+<p>Again, make sure to edit the path in the line above because it will look different for you.</p>
+<p>Close the “Settings for New Projects” window and click “Configure” again. This time, however, select “AVD Manager,” then “Create Virtual Device,” and, finally, a phone from the list. As you can see in the image below, you can download emulators for different devices. Go ahead and pick whichever device you want, then click “Next”:</p>
+<p>This will take you to the “System Image” interface. Click on the “Recommended” tab and select an operating system:</p>
+<p>Click the “Download” link next to whichever OS you want to install. Android Studio will download that image for you, which might take a few minutes. In the next window, give your device a name, then click “Finish.”</p>
+<p>Now, head back to the Virtual Device Manager and click “Play” to start your newly created emulator. Finally, head to the “Browser” tab of the project you’re currently running in Expo and click “Run on Android device/emulator.” Expo will start installing the Expo client on your virtual device and start your project.</p>
+<h3>Set Up Firestore Database</h3>
+<p>Data is designed to be stored on a Firestore databse.</p>
+<p>To get started, head over to Google Firebase and “Sign in” or create an account.</p>
+<p>Next, click on the “Go to console” link and choose “Add project.” The default settings will suffice.</p>
+<p>With the new project created and in the project console choose “Create database” in the Cloud Firestore section.</p>
+<p>Start the database in test mode but <strong>note</strong> that anyone will be able to read and write from onto your databse.</p>
+<p>With &quot;test mode&quot; enabled it's not time to create a collection. Name the collection &quot;messages&quot;. You will then be asked to create the first document in the collection. Use the following fields for this document:</p>
+<p><img src="https://i.ibb.co/y57kY20/Screenshot-2019-10-14-at-19-30-21.png" alt="Firebase Document"></p>
+<p>Next open up your “Project Settings” (by clicking on the gear icon). Under the “General” tab, you’ll find a section called “Your apps,” which is where you can generate configurations for different platforms. Click the “Firestore for Web” button, which will open up the following modal:</p>
+<p><img src="https://images.careerfoundry.com/public/courses/fullstack-immersion/A5/E4/A5-E3-test-firestore-configuration.PNG" alt="apiKey"></p>
+<p>Copy the contents of the config object (from { apiKey:… to messagingSenderId:…}) in this modal. You will need to paste this into the firebaseConfig file in the following directory:</p>
+<p>components/utils/firebaseConfig.js</p>
+<h4>Firebase Authentication</h4>
+<p>To set up simple authentication, back in the firestore console click on &quot;authentication&quot; under &quot;Develop&quot; and click on anonymous.</p>
+<p><img src="https://images.careerfoundry.com/public/courses/fullstack-immersion/A5/E4/anonymous_authentication.png" alt=""></p>
+<h3>Starting the Application</h3>
+<p>If everything is set up correctly you should be able to navigate to the project folder and use the following command to initiate the application:</p>
+<pre class="prettyprint source lang-bash"><code>expo start
+</code></pre>
+<p>The application should start on on</p></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="ChatScreen.html">ChatScreen</a></li><li><a href="StartScreen.html">StartScreen</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.3</a> on Mon Oct 14 2019 19:47:27 GMT+0100 (British Summer Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
