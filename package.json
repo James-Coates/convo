@@ -17,7 +17,7 @@
     "expo-permissions": "^6.0.0",
     "firebase": "^6.6.0",
     "jsdoc": "^3.6.3",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "prop-types": "^15.7.2",
     "react": "16.8.3",
     "react-dom": "^16.8.6",
